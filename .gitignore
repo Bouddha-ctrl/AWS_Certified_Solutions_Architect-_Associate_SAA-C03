@@ -1,0 +1,12 @@
+.claude/settings.local.json
+__pycache__/
+*.pyc
+
+# local-only dev tooling, sources, and resume state (kept off the public repo)
+dev/
+
+# internal docs: ignore all markdown except the public-facing ones
+*.md
+!README.md
+!DISCLAIMER.md
+!COVERAGE.md
