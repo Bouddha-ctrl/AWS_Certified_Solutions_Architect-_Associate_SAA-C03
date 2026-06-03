@@ -60,6 +60,31 @@ details{margin-top:8px} summary{cursor:pointer;color:var(--mut)}
 .histtable .hok{color:var(--good);font-weight:700} .histtable .hbad{color:var(--bad);font-weight:700}
 .histtable .hdom{color:var(--mut)}
 #clearhist{padding:6px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--inp);color:var(--mut);cursor:pointer}
+/* ---- Service Reference ---- */
+#refview{padding:14px 18px;max-width:1100px;margin:0 auto}
+.refctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.refctrl input[type=text],#refsearch{flex:1;min-width:220px;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--inp);color:var(--fg)}
+#refcat{padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--inp);color:var(--fg)}
+.refhyb{font-size:13px;color:var(--mut);display:flex;align-items:center;gap:5px}
+.refcat-h{font-size:13px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin:18px 0 8px;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.refrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.svc{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
+.svc-hd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.svc-hd b{font-size:15px}
+.svc-abbr{font-size:12px;color:var(--mut);font-family:ui-monospace,monospace}
+.tag{font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;line-height:1.6}
+.tag-hyb{background:#fdf0d5;color:var(--warn);border:1px solid #ecd9a8}
+.svc-line{margin:6px 0 8px;font-size:13.5px}
+.svc h5{margin:9px 0 3px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:12px;background:var(--inp);border:1px solid var(--bd);border-radius:12px;padding:1px 9px;color:var(--fg)}
+.chip-trig{background:#eaf1fd;border-color:#cfe0fb}
+.svc ul{margin:3px 0 0;padding-left:17px;font-size:13px}
+.svc ul li{margin:2px 0}
+.svc-vs b,.svc-dom b{color:var(--fg)}
+.svc-vs div,.svc-dom div{font-size:12.5px;margin:2px 0;color:var(--mut)}
+.dombadge{display:inline-block;width:15px;text-align:center;font-weight:700;border-radius:4px;margin-right:4px;font-size:11px}
+.d-S{background:#fde7e4;color:var(--bad)} .d-R{background:#e4f0e8;color:var(--good)} .d-P{background:#eaf1fd;color:var(--acc)} .d-C{background:#fdf0d5;color:var(--warn)}
 </style></head><body>
 <header>
   <div class="hrow"><h1>AWS Certified Solutions Architect – Associate SAA-C03 — 1015 questions</h1>
@@ -68,6 +93,7 @@ details{margin-top:8px} summary{cursor:pointer;color:var(--mut)}
   <div class="tabs">
     <button class="tab on" data-mode="study">Study</button>
     <button class="tab" data-mode="exam">Mock Exam</button>
+    <button class="tab" data-mode="ref">Service Reference</button>
   </div>
   <!-- STUDY controls -->
   <div id="studybar">
@@ -6204,7 +6230,17 @@ details{margin-top:8px} summary{cursor:pointer;color:var(--mut)}
   <div id="examresult"></div>
   <div id="examqs"></div>
 </main>
+<main id="refview" class="hidden">
+  <div class="refctrl">
+    <input id="refsearch" placeholder="Filter service, trigger, keyword…">
+    <select id="refcat"><option value="all">All categories</option></select>
+    <label class="refhyb"><input type="checkbox" id="refhybonly"> Hybrid (AWS ↔ on-prem) only</label>
+    <span class="stat" id="refcount"></span>
+  </div>
+  <div id="refgrid"></div>
+</main>
 <script src="explanations.js"></script>
+<script src="services.js"></script>
 <script>
 const EXPL=window.EXPL||{};
 const PASS=72, DLAB={"S": "Secure", "R": "Resilient", "P": "Performance", "C": "Cost"};
@@ -6304,14 +6340,61 @@ const tabs=[...document.querySelectorAll('.tab')];
 let timerId=null;
 function setMode(m){
   tabs.forEach(t=>t.classList.toggle('on',t.dataset.mode===m));
-  const exam=m==='exam';
-  list.classList.toggle('hidden',exam);
-  studybar.classList.toggle('hidden',exam);
+  const exam=m==='exam', ref=m==='ref', study=m==='study';
+  list.classList.toggle('hidden',!study);
+  studybar.classList.toggle('hidden',!study);
   examview.classList.toggle('hidden',!exam);
   exambar.classList.toggle('hidden',!exam);
+  $('refview').classList.toggle('hidden',!ref);
   if(!exam) stopExam(false);
+  if(ref) renderRef();
 }
 tabs.forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.mode)));
+
+/* ---------- SERVICE REFERENCE ---------- */
+const SVC=window.SERVICES||{};
+let refInit=false;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function svcCard(s){
+  const trig=(s.triggers||[]).map(x=>`<span class="chip chip-trig">${esc(x)}</span>`).join('');
+  const pick=(s.pickWhen||[]).map(x=>`<li>${esc(x)}</li>`).join('');
+  const vs=Object.entries(s.vs||{}).map(([k,v])=>`<div><b>vs ${esc(k)}:</b> ${esc(v)}</div>`).join('');
+  const lim=(s.limits||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join('');
+  const dom=Object.entries(s.domains||{}).map(([k,v])=>`<div><span class="dombadge d-${k}">${k}</span>${esc(v)}</div>`).join('');
+  const hyb=s.hybrid?`<span class="tag tag-hyb" title="Used across AWS and on-premises">Hybrid</span>`:'';
+  return `<div class="svc">
+    <div class="svc-hd"><b>${esc(s.name)}</b><span class="svc-abbr">${esc(s.abbr||'')}</span>${hyb}</div>
+    <div class="svc-line">${esc(s.line||'')}</div>
+    ${trig?`<h5>Exam triggers</h5><div class="chips">${trig}</div>`:''}
+    ${pick?`<h5>Pick when</h5><ul>${pick}</ul>`:''}
+    ${vs?`<h5>Don't confuse with</h5><div class="svc-vs">${vs}</div>`:''}
+    ${dom?`<h5>By domain</h5><div class="svc-dom">${dom}</div>`:''}
+    ${lim?`<h5>Limits</h5><div class="chips">${lim}</div>`:''}
+  </div>`;
+}
+function renderRef(){
+  const grid=$('refgrid'); if(!grid) return;
+  const entries=Object.values(SVC);
+  if(!entries.length){grid.innerHTML='<p class="stat">services.js not loaded yet — run dev/gen_services.py.</p>';return;}
+  if(!refInit){
+    const cats=[...new Set(entries.map(s=>s.cat))];
+    $('refcat').insertAdjacentHTML('beforeend',cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''));
+    ['refsearch','refcat','refhybonly'].forEach(id=>$(id).addEventListener('input',renderRef));
+    refInit=true;
+  }
+  const q=$('refsearch').value.toLowerCase().trim();
+  const cat=$('refcat').value, hybOnly=$('refhybonly').checked;
+  const blob=s=>JSON.stringify(s).toLowerCase();
+  const hit=entries.filter(s=>(cat==='all'||s.cat===cat)&&(!hybOnly||s.hybrid)&&(!q||blob(s).includes(q)));
+  const order=[...new Set(entries.map(s=>s.cat))];
+  let html='';
+  for(const c of order){
+    const inCat=hit.filter(s=>s.cat===c); if(!inCat.length) continue;
+    html+=`<div class="refcat-h">${esc(c)} · ${inCat.length}</div><div class="refrow">${inCat.map(svcCard).join('')}</div>`;
+  }
+  grid.innerHTML=html||'<p class="stat">No services match.</p>';
+  $('refcount').textContent=`${hit.length} / ${entries.length} services`;
+}
 
 /* ---------- EXAM mode (autosave + resume) ---------- */
 let examCards=[], examActive=false, deadline=0, examN=0;
