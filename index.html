@@ -2,7 +2,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AWS Certified Solutions Architect – Associate SAA-C03 — Quiz</title>
 <style>
-:root{--bg:#f4f6f9;--card:#ffffff;--fg:#1c2430;--mut:#5e6b7a;--acc:#1a73e8;--good:#157f3b;--bad:#c43d2f;--warn:#a9791a;--hd:#ffffff;--bd:#dfe3ea;--inp:#ffffff}
+:root{--bg:#f4f6f9;--card:#ffffff;--fg:#1c2430;--mut:#5e6b7a;--acc:#1a73e8;--good:#157f3b;--bad:#c43d2f;--warn:#a9791a;--hd:#ffffff;--bd:#dfe3ea;--inp:#ffffff;color-scheme:light}
+:root[data-theme=dark]{--bg:#0f1419;--card:#1a2230;--fg:#e3e8ef;--mut:#93a1b3;--acc:#5b9dff;--good:#5fd28a;--bad:#f0816f;--warn:#e0bd6a;--hd:#141b25;--bd:#2a3441;--inp:#222c3a;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg)}
 header{position:sticky;top:0;background:var(--hd);padding:12px 18px;border-bottom:1px solid var(--bd);z-index:5}
@@ -85,9 +86,22 @@ details{margin-top:8px} summary{cursor:pointer;color:var(--mut)}
 .svc-vs div,.svc-dom div{font-size:12.5px;margin:2px 0;color:var(--mut)}
 .dombadge{display:inline-block;width:15px;text-align:center;font-weight:700;border-radius:4px;margin-right:4px;font-size:11px}
 .d-S{background:#fde7e4;color:var(--bad)} .d-R{background:#e4f0e8;color:var(--good)} .d-P{background:#eaf1fd;color:var(--acc)} .d-C{background:#fdf0d5;color:var(--warn)}
-</style></head><body>
+/* ---- Dark mode overrides for hardcoded light tints ---- */
+[data-theme=dark] .card.done-ok{border-color:#2f6b45;box-shadow:0 0 0 1px #2f6b45}
+[data-theme=dark] .card.done-bad{border-color:#7a3a30;box-shadow:0 0 0 1px #7a3a30}
+[data-theme=dark] .choice.correct{background:#16301f}
+[data-theme=dark] .choice.wrong{background:#3a1d18}
+[data-theme=dark] .expl,[data-theme=dark] .exsum{color:#c3ccd8}
+[data-theme=dark] .tag-hyb{background:#3a3115;border-color:#5c4d1f}
+[data-theme=dark] .chip-trig{background:#1a2c47;border-color:#2f4a72}
+[data-theme=dark] .d-S{background:#3a1d1a} [data-theme=dark] .d-R{background:#16301f} [data-theme=dark] .d-P{background:#1a2c47} [data-theme=dark] .d-C{background:#3a3115}
+#themetoggle{border:1px solid var(--bd);background:var(--inp);color:var(--mut);border-radius:8px;padding:4px 10px;cursor:pointer;line-height:1;font-size:15px}
+</style>
+<script>(function(){var t=localStorage.getItem('saa_theme');if(!t)t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
+</head><body>
 <header>
   <div class="hrow"><h1>AWS Certified Solutions Architect – Associate SAA-C03 — 1015 questions</h1>
+  <button id="themetoggle" title="Toggle dark mode">🌙</button>
   <button id="navtoggle" title="Minimize bar">▲</button></div>
   <div class="collapsible">
   <div class="tabs">
@@ -6333,6 +6347,10 @@ if(localStorage.getItem('saa_navmin')==='1') hdr.classList.add('min');
 function syncTog(){const m=hdr.classList.contains('min');ntog.textContent=m?'▼':'▲';ntog.title=m?'Expand bar':'Minimize bar';}
 syncTog();
 ntog.addEventListener('click',()=>{hdr.classList.toggle('min');localStorage.setItem('saa_navmin',hdr.classList.contains('min')?'1':'0');syncTog();});
+const ttog=$('themetoggle');
+function syncTheme(){const d=document.documentElement.getAttribute('data-theme')==='dark';ttog.textContent=d?'☀️':'🌙';ttog.title=d?'Switch to light mode':'Switch to dark mode';}
+syncTheme();
+ttog.addEventListener('click',()=>{const d=document.documentElement.getAttribute('data-theme')==='dark';if(d)document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme','dark');localStorage.setItem('saa_theme',d?'light':'dark');syncTheme();});
 reset.addEventListener('click',()=>{if(!confirm('Erase all progress?'))return;for(const k in store)delete store[k];save();allCards.forEach(paint);stats();applyFilter();});
 
 /* ---------- mode switch ---------- */
