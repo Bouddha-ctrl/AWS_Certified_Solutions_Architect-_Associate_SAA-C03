@@ -4,7 +4,7 @@ Static web quiz for the **AWS Certified Solutions Architect – Associate
 (SAA-C03)** exam. 1015 questions, study mode + timed mock exams, per-option
 explanations. No backend — progress saved in your browser.
 
-**Explanation coverage: 692 / 1015 questions (68%).** The rest fall back to
+**Explanation coverage: 891 / 1015 questions (88%).** The rest fall back to
 "No explanation generated yet." See [`COVERAGE.md`](COVERAGE.md) for the exact
 remaining question ids.
 
