@@ -8,29 +8,10 @@ explanations. No backend — progress saved in your browser.
 "No explanation generated yet." See [`COVERAGE.md`](COVERAGE.md) for the exact
 remaining question ids.
 
-## Run
-
-Open `index.html` in a browser, or serve the folder:
-
-```bash
-python3 -m http.server
-```
-
 ## Deploy (GitHub Pages)
 
 Push `index.html` + `explanations.js`, enable Pages on the `main` branch.
-Live at `https://<user>.github.io/quizz/`.
-
-## Generating more explanations
-
-Tracked in `COVERAGE.md`. Workflow:
-
-```bash
-python3 gen_via_cli.py 50   # generate next batch (see CLAUDE.md for source caveat)
-python3 coverage.py         # refresh COVERAGE.md count + remaining ids
-git add explanations.js COVERAGE.md && git commit -m "More explanations"
-git push                    # redeploy
-```
+Live at <https://bouddha-ctrl.github.io/AWS_Certified_Solutions_Architect-_Associate_SAA-C03/>.
 
 ## Notes
 
